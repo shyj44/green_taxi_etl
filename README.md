@@ -1,10 +1,10 @@
-# green_taxi_etl pipeline
+# Kestra Taxi Data Pipeline – Homework
 
 ## Overview
-This project implements an ETL pipeline that processes NYC Green Taxi trip data
-for October, November, and December 2020. The pipeline extracts data from a public
-GitHub source, transforms it using Pandas, and loads it into Postgres and Google
-Cloud Storage.
+This repository contains a Kestra workflow used to process NYC Taxi data.
+The existing pipeline was extended to include data for the year 2021.
+
+Both Green and Yellow taxi datasets were processed.
 
 ---
 
@@ -12,78 +12,43 @@ Cloud Storage.
 Source:
 https://github.com/DataTalksClub/nyc-tlc-data/releases/tag/green/download
 
-Files used:
-- green_tripdata_2020-10.csv.gz
-- green_tripdata_2020-11.csv.gz
-- green_tripdata_2020-12.csv.gz
+Files follow the naming pattern:
+- green_tripdata_YYYY-MM.csv
+- yellow_tripdata_YYYY-MM.csv
 
 ---
 
-## ETL Steps
+## Pipeline Inputs
+The flow accepts the following inputs:
+- taxi: taxi type (`green` or `yellow`)
+- year: year of the dataset
+- month: month of the dataset
 
-### Extract
-- Data is downloaded using Pandas
-- Only Q4 2020 (Oct–Dec) files are loaded
-- Files are concatenated using a for-loop and `pd.concat`
+These inputs are used to dynamically construct the dataset filename and download URL.
 
-### Transform
-- Rows with `passenger_count = 0` or `trip_distance = 0` are removed
-- A new column `lpep_pickup_date` is created from `lpep_pickup_datetime`
-- Column names are converted from CamelCase to snake_case
-- Assertions ensure data quality
+---
 
-### Load
-- Data is written to Postgres in the `mage.green_taxi` table
-- Table is replaced if it already exists
+## 2021 Data Processing
+The pipeline was executed for the period:
+- **2021-01-01 to 2021-07-31**
 
-### Export
-- Data is written to Google Cloud Storage as Parquet files
-- Files are partitioned by `lpep_pickup_date`
+Kestra’s **backfill functionality** was used to automatically run the pipeline
+for each month within this time range.
+
+The backfill was executed separately for:
+- Green Taxi data
+- Yellow Taxi data
 
 ---
 
 ## Scheduling
-The pipeline is scheduled to run daily at 5:00 AM UTC using a cron job.
+The flow is scheduled using Kestra’s Schedule trigger and supports backfilling.
+Timezone configuration follows IANA standards (e.g. `America/New_York` when required).
 
 ---
 
-## Homework Questions
-
-### Question 1
-**Once the dataset is loaded, what's the shape of the data?**
-
-Answer: **544,898 rows × 20 columns**
-
----
-
-### Question 2
-**How many rows remain after filtering passenger_count > 0 and trip_distance > 0?**
-
-Answer: **266,855 rows**
-
----
-
-### Question 3
-**How is `lpep_pickup_date` created?**
-
-Answer:
-```python
-data['lpep_pickup_date'] = data['lpep_pickup_datetime'].dt.date
-
-Question 4
-
-What are the existing values of VendorID?
-
-Answer: 1 or 2
-
-Question 5
-
-How many columns are renamed to snake case?
-
-Answer: 4
-
-Question 6
-
-How many partitions are created in Google Cloud Storage?
-
-Answer: 96
+## Notes
+This project demonstrates:
+- Workflow orchestration using Kestra
+- Parameterized flows using inputs and variables
+- Backfilling historical data efficiently
