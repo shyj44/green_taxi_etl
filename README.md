@@ -29,21 +29,23 @@ These inputs are used to dynamically construct the dataset filename and download
 ---
 
 ## 2021 Data Processing
-The pipeline was executed for the period:
-- **2021-01-01 to 2021-07-31**
+The pipeline was executed using Kestra’s **Schedule trigger** with backfill.
 
-Kestra’s **backfill functionality** was used to automatically run the pipeline
-for each month within this time range.
+Backfill configuration:
+- Trigger type: Schedule
+- Backfill period: **2021-01-01 to 2021-07-31**
 
-The backfill was executed separately for:
-- Green Taxi data
-- Yellow Taxi data
+The backfill was executed separately for each taxi type:
+- taxi = green
+- taxi = yellow
+
+This ensured that all available monthly datasets for 2021 were processed automatically.
 
 ---
 
 ## Scheduling
 The flow is scheduled using Kestra’s Schedule trigger and supports backfilling.
-Timezone configuration follows IANA standards (e.g. `America/New_York` when required).
+Timezone configuration follows IANA standards (`America/New_York`).
 
 ---
 
